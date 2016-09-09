@@ -376,6 +376,7 @@ class ScrapingController extends AbstractActionController
             $dom_producto = new Query($pro_html);
             $results_producto_img = $dom_producto->execute('.u-center .product-images img#image-main');
             foreach ($results_producto_img as $producto) {
+                var_dump($this->getImage($producto->getAttribute('src')));
                 echo $producto->getAttribute('src') . '|';
             }
             $results_producto_nombre = $dom_producto->execute('.u-center .product-name .productName');
@@ -419,8 +420,19 @@ class ScrapingController extends AbstractActionController
                  echo $precio->nodeValue . '<br>';
             }
         } */
-        
+
         return false; 
+    }
+
+    public function getImage($url)
+    {
+        $name = basename($url);       
+        $upload = file_put_contents(dirname(__DIR__) . "/../../../public/img/products/$name",file_get_contents($url));
+        if($upload) {
+            return true;
+        } else {
+            return false;
+        }        
     }
 
     /*
