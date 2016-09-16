@@ -13,6 +13,9 @@ use Zend\View\Model\ViewModel;
 use GuzzleHttp\Client;
 use Zend\Dom\Query;
 
+use Product\Model\Product;
+use Product\Model\ProductTable;
+
 class ScrapingController extends AbstractActionController
 {
 
@@ -39,6 +42,9 @@ class ScrapingController extends AbstractActionController
 
     public function plazaveaAction()
     {
+
+
+        
         return [
             'portal'    => 'plazavea',
         ];    	
@@ -358,34 +364,56 @@ class ScrapingController extends AbstractActionController
 
         #GET PRODUCTOS DE PLAZAVEA - Funciona
 
+        $pag = 1;
+        $limit_page = 1; 
+
         $client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
         $options = [ 
-            'timeout' => 5.0, 
+            'timeout' => 10.0, 
             'allow_redirects' => true
         ];
-        $response = $client->request('GET', 'http://www.plazavea.com.pe/abarrotes/aceite/oliva#1', $options);
-        $html = $response->getBody();
+        //Url general: http://www.plazavea.com.pe/abarrotes/aceite/oliva#1 usa un js 
+        //Url real: http://www.plazavea.com.pe/buscapagina?fq=C%3a%2f431%2f433%2f599%2f&PS=12&sl=d5430711-1181-4e16-96fc-59fca4d57beb&cc=3&sm=0&PageNumber=1
+        
+        for ($i=$pag; $i <= $limit_page; $i++) { 
+            $page_url = 'http://www.plazavea.com.pe/buscapagina?fq=C%3a%2f431%2f433%2f599%2f&PS=12&sl=d5430711-1181-4e16-96fc-59fca4d57beb&cc=3&sm=0&PageNumber='.$i;
+            $response = $client->request('GET', $page_url, $options);
+            $html = $response->getBody();
 
-        $dom_productos = new Query($html);
+            $dom_productos = new Query($html);
 
-        $results_productos = $dom_productos->execute('div.prateleira ul li a.prateleira__image-link'); //.prateleira__content
-        foreach ($results_productos as $productos) {
-            $url = $productos->getAttribute('href');
-            $response2 = $client->request('GET', $url, $options);
-            $pro_html = $response2->getBody();
-            $dom_producto = new Query($pro_html);
-            $results_producto_img = $dom_producto->execute('.u-center .product-images img#image-main');
-            foreach ($results_producto_img as $producto) {
-                var_dump($this->getImage($producto->getAttribute('src')));
-                echo $producto->getAttribute('src') . '|';
-            }
-            $results_producto_nombre = $dom_producto->execute('.u-center .product-name .productName');
-            foreach ($results_producto_nombre as $nombre) {
-                echo $nombre->nodeValue . '|';
-            }
-            $results_producto_precio = $dom_producto->execute('.u-center .product-information .plugin-preco');
-            foreach ($results_producto_precio as $precio) {
-                 echo $precio->nodeValue . '<br>';
+            $error = $dom_productos->getDocument();
+
+            if ($dom_productos != NULL) {
+                $results_productos = $dom_productos->execute('div.prateleira ul li a.prateleira__image-link'); //.prateleira__content
+                foreach ($results_productos as $productos) {
+                    $url = $productos->getAttribute('href');
+                    //para nombre de imagen
+                    list($http, $vacio, $dominio, $nombre) = explode("/", $url);
+                    $response2 = $client->request('GET', $url, $options);
+                    $pro_html = $response2->getBody();
+                    $dom_producto = new Query($pro_html);
+                    /*$results_producto_img = $dom_producto->execute('.u-center .product-images img#image-main');
+                    foreach ($results_producto_img as $producto) {
+                        $src = str_replace("’", "", $producto->getAttribute('src'));
+                        //$alt = str_replace("’", "", $producto->getAttribute('alt'));
+                        //var_dump($this->getImage($src, $nombre));
+                        echo $producto->getAttribute('src') . '|';
+                    }
+                    $results_producto_nombre = $dom_producto->execute('.u-center .product-name .productName');
+                    foreach ($results_producto_nombre as $nombre) {
+                        echo $nombre->nodeValue . '|';
+                    }*/
+                    $results_producto_precio = $dom_producto->execute('.u-center .product-information .plugin-preco');
+                    foreach ($results_producto_precio as $precio) {
+                        list($de,$precio_normal, $precio_actual) = explode("S/.", $precio->nodeValue);
+                        //echo $precio->nodeValue . '<br>';
+                        echo trim($precio_normal, "Ahora: ") . "|";
+                        echo trim($precio_actual, "ou 1X de") . "<br>";
+                    }
+                }
+            } else {
+                break;
             }
         }
 
@@ -424,15 +452,17 @@ class ScrapingController extends AbstractActionController
         return false; 
     }
 
-    public function getImage($url)
+    public function getImage($src, $name)
     {
-        $name = basename($url);       
-        $upload = file_put_contents(dirname(__DIR__) . "/../../../public/img/products/$name",file_get_contents($url));
+        //$name = basename($src);    
+        $img_parts = pathinfo($src);
+        $name = $name.'.'.$img_parts['extension'];
+        $upload = file_put_contents(dirname(__DIR__) . "/../../../public/img/products/$name",file_get_contents($src));
         if($upload) {
             return true;
         } else {
             return false;
-        }        
+        }
     }
 
     /*

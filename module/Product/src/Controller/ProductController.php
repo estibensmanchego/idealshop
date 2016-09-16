@@ -121,4 +121,9 @@ class ProductController extends AbstractActionController
             'product' => $this->table->getProduct($id),
         ];    	
     }
+
+    public function elementAction()
+    {
+        return false;
+    }
 }

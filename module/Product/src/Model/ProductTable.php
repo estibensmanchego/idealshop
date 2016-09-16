@@ -21,7 +21,7 @@ class ProductTable
     public function getProduct($id)
     {
         $id = (int) $id;
-        $rowset = $this->tableGateway->select(['id' => $id]);
+        $rowset = $this->tableGateway->select(['id_product' => $id]);
         $row = $rowset->current();
         if (! $row) {
             throw new RuntimeException(sprintf(
@@ -36,11 +36,16 @@ class ProductTable
     public function saveProduct(Product $Product)
     {
         $data = [
-            'artist' => $Product->artist,
-            'title'  => $Product->title,
+            'id_brand' => $Product->id_brand,
+            'id_category'  => $Product->id_category,
+            'name'  => $Product->name,
+            'description'  => $Product->description,
+            'stock'  => $Product->stock,
+            'status'  => $Product->status,
+            'outstanding'  => $Product->outstanding,
         ];
 
-        $id = (int) $Product->id;
+        $id = (int) $Product->id_product;
 
         if ($id === 0) {
             $this->tableGateway->insert($data);
@@ -54,11 +59,11 @@ class ProductTable
             ));
         }
 
-        $this->tableGateway->update($data, ['id' => $id]);
+        $this->tableGateway->update($data, ['id_product' => $id]);
     }
 
     public function deleteProduct($id)
     {
-        $this->tableGateway->delete(['id' => (int) $id]);
+        $this->tableGateway->delete(['id_product' => (int) $id]);
     }
 }

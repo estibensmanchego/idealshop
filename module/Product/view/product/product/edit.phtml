@@ -1,41 +1,118 @@
-<?php
-$title = 'Edit product';
-$this->headTitle($title);
-?>
-<h1><?= $this->escapeHtml($title) ?></h1>
-<?php
-$album = $form->get('title');
-$album->setAttribute('class', 'form-control');
-$album->setAttribute('placeholder', 'Album title');
+<div class="container">
+    
+    <!-- BASIC INPUTS -->
+    <div class="block">                        
+        
+        <div class="app-heading app-heading-small">                                
+            <div class="title">
+                <h2>Agregar nuevo producto</h2>
+                <p>Llene los campos para agregar un uevo producto</p>
+            </div>                                
+        </div>
+              
+        <?php  
+            $form->setAttribute('action', $this->url('product', [
+                'action' => 'edit',
+                'id'     => $id,
+            ]));            
+			$form->prepare();
+			echo $this->form()->openTag($form);
+        ?>      
+            <div class="form-group">
+                <label class="col-md-2 control-label">Nombre</label>
+                <div class="col-md-10">
+                    <?php  
+						$name = $form->get('name');
+						$name->setAttribute('class', 'form-control');
+						$name->setAttribute('placeholder', 'Aceite de Oliva 1L');
+                    ?>
+                    <?= $this->formElement($name) ?>
+                    <?= $this->formElementErrors()->render($name, ['class' => 'help-block']) ?>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Descripción</label>
+                <div class="col-md-10">
+                    <?php  
+                        $description = $form->get('description');
+                        $description->setAttribute('class', 'form-control');
+                    ?>
+                    <?= $this->formElement($description) ?>
+                    <?= $this->formElementErrors()->render($description, ['class' => 'help-block']) ?>                    
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-6">
+                    <label>Marca</label>
+                    <?php  
+                        $brand = $form->get('id_brand');
+                        $brand->setAttribute('class', 'bs-select form-control');
+                        $brand->setAttribute('data-live-search', 'true');
+                    ?>
+                    <?= $this->formElement($brand) ?>
+                    <?= $this->formElementErrors()->render($brand, ['class' => 'help-block']) ?>
+                </div>
+                <div class="col-md-6">
+                    <label>Categoría</label>
+                    <?php  
+                        $category = $form->get('id_category');
+                        $category->setAttribute('class', 'bs-select form-control');
+                        $category->setAttribute('data-live-search', 'true');
+                    ?>
+                    <?= $this->formElement($category) ?>
+                    <?= $this->formElementErrors()->render($category, ['class' => 'help-block']) ?>
+                </div>
+            </div>              
+			<div class="form-group">                                                                
+                <label class="col-md-2 control-label">Stock</label>
+                <div class="col-md-3">
+                    <?php  
+                        $stock = $form->get('stock');
+                        $stock->setAttribute('class', 'form-control spinner');
+                    ?>
+                    <?= $this->formElement($stock) ?>
+                    <?= $this->formElementErrors()->render($stock, ['class' => 'help-block']) ?>                    
+                </div>
+            </div>
+			<div class="form-group">
+			    <div class="col-md-2">                                    
+			        <label>Estado</label>
+			        <br>
+			        <label class="switch switch-cube">
+                        <?php  
+                            $status = $form->get('status');
+                            $status->setAttribute('class', 'form-control');
+                        ?>
+                        <?= $this->formElement($status) ?>
+                        <?= $this->formElementErrors()->render($status, ['class' => 'help-block']) ?>                        
+			        </label>                                    
+			    </div>    
+                <div class="col-md-2">                                    
+                    <label>Destacado</label>
+                    <br>
+                    <label class="switch switch-cube">
+                        <?php  
+                            $outstanding = $form->get('outstanding');
+                            $outstanding->setAttribute('class', 'form-control');
+                            //$outstanding->setChecked(false);
+                        ?>
+                        <?= $this->formElement($outstanding) ?>
+                        <?= $this->formElementErrors()->render($outstanding, ['class' => 'help-block']) ?>                        
+                    </label>                                    
+                </div> 
+			</div>
+			<?php
+			$submit = $form->get('submit');
+			$submit->setAttribute('class', 'btn btn-primary');
+			$submit->setAttribute('value', 'Agregar');								
+			echo $this->formSubmit($submit);
+			echo $this->formHidden($form->get('id_product'));
+			echo $this->form()->closeTag();
+			?>
 
-$artist = $form->get('artist');
-$artist->setAttribute('class', 'form-control');
-$artist->setAttribute('placeholder', 'Artist');
-
-$submit = $form->get('submit');
-$submit->setAttribute('class', 'btn btn-primary');
-
-$form->setAttribute('action', $this->url('album', [
-    'action' => 'edit',
-    'id'     => $id,
-]));
-$form->prepare();
-
-echo $this->form()->openTag($form);
-?>
-<div class="form-group">
-    <?= $this->formLabel($album) ?>
-    <?= $this->formElement($album) ?>
-    <?= $this->formElementErrors()->render($album, ['class' => 'help-block']) ?>
+        </form>
+        
+    </div>
+    <!-- END BASIC INPUTS -->
+    
 </div>
-
-<div class="form-group">
-    <?= $this->formLabel($artist) ?>
-    <?= $this->formElement($artist) ?>
-    <?= $this->formElementErrors()->render($artist, ['class' => 'help-block']) ?>
-</div>
-
-<?php
-echo $this->formSubmit($submit);
-echo $this->formHidden($form->get('id'));
-echo $this->form()->closeTag();
