@@ -36,6 +36,16 @@ class Module implements ConfigProviderInterface
                     $resultSetPrototype->setArrayObjectPrototype(new Model\Product());
                     return new TableGateway('product', $dbAdapter, null, $resultSetPrototype);
                 },
+                Model\ProductCategoryTable::class => function($container) {
+                    $tableGateway = $container->get(Model\ProductCategoryTableGateway::class);
+                    return new Model\ProductCategoryTable($tableGateway);
+                },
+                Model\ProductCategoryTableGateway::class => function ($container) {
+                    $dbAdapter = $container->get(AdapterInterface::class);
+                    $resultSetPrototype = new ResultSet();
+                    $resultSetPrototype->setArrayObjectPrototype(new Model\ProductCategory());
+                    return new TableGateway('product_category', $dbAdapter, null, $resultSetPrototype);
+                },
             ],
         ];
     }

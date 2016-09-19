@@ -409,7 +409,7 @@ CREATE TABLE `product` (
   KEY `fk_Producto_Marca_idx` (`id_brand`),
   KEY `fk_Producto_Categoria1_idx` (`id_category`),
   KEY `id_categoria` (`id_category`),
-  CONSTRAINT `fk_Producto_Categoria1` FOREIGN KEY (`id_category`) REFERENCES `product_category` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Producto_Categoria1` FOREIGN KEY (`id_category`) REFERENCES `product_category` (`id_category`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_Producto_Marca` FOREIGN KEY (`id_brand`) REFERENCES `product_brand` (`id_marca`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -488,16 +488,16 @@ DROP TABLE IF EXISTS `product_category`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `product_category` (
-  `id_categoria` int(11) NOT NULL AUTO_INCREMENT,
-  `id_cat_padre` int(11) NOT NULL,
-  `nombre` varchar(120) DEFAULT NULL,
-  `descripcion` text COMMENT '	',
-  `imagen` varchar(200) DEFAULT NULL,
+  `id_category` int(11) NOT NULL AUTO_INCREMENT,
+  `id_cat_top` int(11) NOT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `description` text COMMENT '	',
+  `image` varchar(200) DEFAULT NULL,
   `orden` varchar(45) DEFAULT NULL COMMENT 'Orden de visualización',
-  `estado` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`id_categoria`),
-  KEY `fk_Categoria_Categoria1_idx` (`id_cat_padre`),
-  CONSTRAINT `fk_Categoria_Categoria1` FOREIGN KEY (`id_cat_padre`) REFERENCES `product_category` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  `status` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id_category`),
+  KEY `fk_Categoria_Categoria1_idx` (`id_cat_top`),
+  CONSTRAINT `fk_Categoria_Categoria1` FOREIGN KEY (`id_cat_top`) REFERENCES `product_category` (`id_category`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -698,4 +698,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-16 16:23:09
+-- Dump completed on 2016-09-19 18:05:02

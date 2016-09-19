@@ -16,6 +16,8 @@ use Zend\Dom\Query;
 use Product\Model\Product;
 use Product\Model\ProductTable;
 
+setlocale(LC_ALL, 'en_US.UTF8');
+
 class ScrapingController extends AbstractActionController
 {
 
@@ -42,9 +44,6 @@ class ScrapingController extends AbstractActionController
 
     public function plazaveaAction()
     {
-
-
-        
         return [
             'portal'    => 'plazavea',
         ];    	
@@ -364,7 +363,7 @@ class ScrapingController extends AbstractActionController
 
         #GET PRODUCTOS DE PLAZAVEA - Funciona
 
-        $pag = 1;
+        /*$pag = 1;
         $limit_page = 1; 
 
         $client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
@@ -404,7 +403,7 @@ class ScrapingController extends AbstractActionController
                     foreach ($results_producto_nombre as $nombre) {
                         echo $nombre->nodeValue . '|';
                     }*/
-                    $results_producto_precio = $dom_producto->execute('.u-center .product-information .plugin-preco');
+                /*    $results_producto_precio = $dom_producto->execute('.u-center .product-information .plugin-preco');
                     foreach ($results_producto_precio as $precio) {
                         list($de,$precio_normal, $precio_actual) = explode("S/.", $precio->nodeValue);
                         //echo $precio->nodeValue . '<br>';
@@ -415,49 +414,68 @@ class ScrapingController extends AbstractActionController
             } else {
                 break;
             }
-        }
+        } */
 
-        #GET PRODUCTOS DE TOTTUS - Funciona FALTA
+        #GET PRODUCTOS DE TOTTUS - Funciona
 
-        /*$client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
+        $client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
         $options = [ 
             'timeout' => 5.0, 
             'allow_redirects' => true
         ];
-        $response = $client->request('GET', 'http://www.plazavea.com.pe/abarrotes/aceite/oliva#1', $options);
+        $response = $client->request('GET', 'http://www.tottus.com.pe/tottus/browse/Abarrotes-y-Despensa-Aceites-y-Vinagres-Aceite-de-Oliva/_/N-kptaaa?No=0&Nrpp=', $options);
         $html = $response->getBody();
 
         $dom_productos = new Query($html);
 
-        $results_productos = $dom_productos->execute('div.prateleira ul li a.prateleira__image-link'); //.prateleira__content
-        foreach ($results_productos as $productos) {
-            $url = $productos->getAttribute('href');
-            $response2 = $client->request('GET', $url, $options);
-            $pro_html = $response2->getBody();
-            $dom_producto = new Query($pro_html);
-            $results_producto_img = $dom_producto->execute('.u-center .product-images img#image-main');
-            foreach ($results_producto_img as $producto) {
-                echo $producto->getAttribute('src') . '|';
-            }
-            $results_producto_nombre = $dom_producto->execute('.u-center .product-name .productName');
-            foreach ($results_producto_nombre as $nombre) {
-                echo $nombre->nodeValue . '|';
-            }
-            $results_producto_precio = $dom_producto->execute('.u-center .product-information .plugin-preco');
-            foreach ($results_producto_precio as $precio) {
-                 echo $precio->nodeValue . '<br>';
-            }
-        } */
+        $data_productos = array();
+
+        $results_productos_img = $dom_productos->execute('form .modal-content img');
+        $results_productos = $dom_productos->execute('form .item-product-caption .title h5 div');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['nombre'] = $productos->nodeValue;
+        }
+        $results_productos = $dom_productos->execute('form .item-product-caption .title h5 span');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['marca'] = $productos->nodeValue;
+        }  
+        $results_productos = $dom_productos->execute('form .item-product-caption .statement');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['detalle'] = $productos->nodeValue;
+        }
+        $results_productos = $dom_productos->execute('form .item-product-caption .offer-details');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['ofeta'] =  trim($productos->nodeValue);
+        }
+        $results_productos = $dom_productos->execute('form .item-product-caption .prices');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['precio'] = trim($productos->nodeValue);
+        }     
+        foreach ($results_productos_img as $k => $img) {
+            $data_productos[$k]['imagen'] = str_replace("//", "", $img->getAttribute('src'));            
+            $nombre = $this->toAscii($data_productos[$k]['nombre']);
+            $type = $_SERVER["CONTENT_TYPE"];
+            $data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre);
+        }        
+
+        var_dump($data_productos);
 
         return false; 
     }
 
-    public function getImage($src, $name)
+    public function getImage($src, $name, $type=NULL)
     {
         //$name = basename($src);    
         $img_parts = pathinfo($src);
         $name = $name.'.'.$img_parts['extension'];
-        $upload = file_put_contents(dirname(__DIR__) . "/../../../public/img/products/$name",file_get_contents($src));
+
+        $options = array(
+          'http'=>array(
+            'user_agent'=>"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36\r\n"
+          )
+        );
+
+        $upload = file_put_contents(dirname(__DIR__) . "/../../../public/img/products/$name",file_get_contents($src, false, $options));
         if($upload) {
             return true;
         } else {
@@ -482,4 +500,17 @@ class ScrapingController extends AbstractActionController
         $response = $client->request($method, $url, $options);
         return $response->getBody();
     }
+
+    function toAscii($str, $replace=array(), $delimiter='-') {
+        if( !empty($replace) ) {
+        $str = str_replace((array)$replace, ' ', $str);
+        }
+
+        $clean = iconv('UTF-8', 'ASCII//TRANSLIT', $str);
+        $clean = preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', $clean);
+        $clean = strtolower(trim($clean, '-'));
+        $clean = preg_replace("/[\/_|+ -]+/", $delimiter, $clean);
+
+        return $clean;
+    }    
 }
