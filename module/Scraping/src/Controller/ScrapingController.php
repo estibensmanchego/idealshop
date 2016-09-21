@@ -109,8 +109,6 @@ class ScrapingController extends AbstractActionController
         $promise = $client->sendAsync($request)->then(function ($response) {
             $html = $response->getBody();
 
-            var_dump($html);exit;
-
             $dom = new Query($html);
             //$results = $dom->execute('#div_categorias #navigation li a.head');
             $results = $dom->execute('#tabla_productos .fila_producto a.ficha_pro');
@@ -123,11 +121,9 @@ class ScrapingController extends AbstractActionController
 
         });
 
-        $promise->wait(); 
+        $promise->wait(); */
 
         //return new ViewModel();
-
-
 
         ##Plazavea
 
@@ -252,11 +248,12 @@ class ScrapingController extends AbstractActionController
 #       #CATEGORIAS
 
         #WONG
-        /*$url = 'https://www.wong.com.pe/FO/supermercados/index.go';
+        $url = 'https://www.wong.com.pe/FO/supermercados/index.go';
         $query = ['search' => 1, 'caip' => 1];
         $html = $this->getBody($url, $query);
 
         $dom = new Query($html);
+
         $results = $dom->execute('#div_categorias #navigation li ul li.subcategoria a');
 
         $categorias = array();
@@ -264,7 +261,9 @@ class ScrapingController extends AbstractActionController
         foreach ($results as $result) {
             $categorias[] = [$result->getAttribute('id'), $result->getAttribute('onclick')];
         }
-        //var_dump($categorias);
+        //var_dump($categorias);  
+
+        $cookies = $this->get_web_page($url);
 
         #parametros de envio para traer productos
         #idCategoria:7048
@@ -286,7 +285,7 @@ class ScrapingController extends AbstractActionController
             . "&nombreCategoria=" . str_replace("'", "", trim($nombrecat))  
             . "&nombreSubCategoria=" . str_replace("'", "", trim($nombresubcat)) . "<br>"; */
 
-        /*  $url = 'https://www.wong.com.pe/FO/supermercados/productos.go';
+            $url = 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=1&idSubCategoria=8182&fecha=21-8-2016%2016:18:17:449&nombreCategoria=Abarrotes&nombreSubCategoria=Aceites%20de%20Oliva';
             $query = [
                 'idCategoria' => $idcat, 
                 'idSubCategoria' => $idsubcat,
@@ -294,12 +293,12 @@ class ScrapingController extends AbstractActionController
                 'nombreCategoria' => str_replace("'", "", trim($nombrecat)),
                 'nombreSubCategoria' => str_replace("'", "", trim($nombresubcat))
             ];
-            $html = $this->getBody($url, $query, 'GET');
+            $html = $this->getBody($url, $query, 'GET', $cookies);
             
             $dom = new Query($html);
             var_dump($dom);
             exit;
-        } */
+        }
 
         #Plazavea
 
@@ -360,6 +359,60 @@ class ScrapingController extends AbstractActionController
 
         $promise->wait(); */
 
+        #GET PRODUCTOS DE WONG - Funciona
+        /*$client = new \GuzzleHttp\Client([
+            'cookies' => true, 
+            'headers' => [
+                'User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"
+            ],
+            'base_uri' => 'https://www.wong.com.pe/pe/supermercado/login.html'
+        ]);
+        $options = [ 
+            'timeout' => 9.0, 
+            'allow_redirects' => true,
+            'form_params' => [
+                'idCategoria' => '1',
+                'idSubCategoria' => '8182',
+                'fecha' => '21-8-2016 16:18:17:449',
+                'nombreCategoria' => 'Abarrotes',
+                'nombreSubCategoria' => 'Aceites de Oliva',
+            ]
+        ];
+        $response = $client->request('POST', 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=1&idSubCategoria=8182&fecha=21-8-2016%2016:18:17:449&nombreCategoria=Abarrotes&nombreSubCategoria=Aceites%20de%20Oliva', $options);
+        $html = $response->getBody();
+
+        $dom_productos = new Query($html);
+
+        $data_productos = array();
+
+        $results_productos = $dom_productos->execute('.fila_producto #ficha_pro');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['nombre'] = $productos->nodeValue;
+        }*/
+        /*$results_productos = $dom_productos->execute('form .item-product-caption .title h5 span');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['marca'] = $productos->nodeValue;
+        }  
+        $results_productos = $dom_productos->execute('form .item-product-caption .statement');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['detalle'] = $productos->nodeValue;
+        }
+        $results_productos = $dom_productos->execute('form .item-product-caption .offer-details');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['ofeta'] =  trim($productos->nodeValue);
+        }
+        $results_productos = $dom_productos->execute('form .item-product-caption .prices');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['precio'] = trim($productos->nodeValue);
+        }
+        $results_productos_img = $dom_productos->execute('form .modal-content img');
+        foreach ($results_productos_img as $k => $img) {
+            $data_productos[$k]['imagen'] = str_replace("//", "", $img->getAttribute('src'));            
+            $nombre = $this->toAscii($data_productos[$k]['nombre']) . '-' . $this->toAscii($data_productos[$k]['marca']) . '-' . uniqid();
+            $data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
+        }
+        var_dump($data_productos);    */
+
 
         #GET PRODUCTOS DE PLAZAVEA - Funciona
 
@@ -418,7 +471,7 @@ class ScrapingController extends AbstractActionController
 
         #GET PRODUCTOS DE TOTTUS - Funciona
 
-        $client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
+        /*$client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
         $options = [ 
             'timeout' => 9.0, 
             'allow_redirects' => true
@@ -456,7 +509,7 @@ class ScrapingController extends AbstractActionController
             $nombre = $this->toAscii($data_productos[$k]['nombre']) . '-' . $this->toAscii($data_productos[$k]['marca']) . '-' . uniqid();
             $data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
         }
-        var_dump($data_productos);
+        var_dump($data_productos); */
 
         return false; 
     }
@@ -487,7 +540,7 @@ class ScrapingController extends AbstractActionController
     @params: $url string url
     @param: $query array ['foo' => 'bar']
     */
-    public function getBody($url, $query='', $method = 'GET')
+    public function getBody($url, $query='', $method = 'GET', $cookies=NULL)
     {
         $tipo = ($method == 'GET') ? 'query' : 'form_params';
         $client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
@@ -495,6 +548,7 @@ class ScrapingController extends AbstractActionController
             'timeout' => 2.0, 
             'allow_redirects' => true, 
             'debug' => false,
+            'cookies' => $cookies,
             $tipo => $query
         ];
         $response = $client->request($method, $url, $options);
@@ -525,5 +579,43 @@ class ScrapingController extends AbstractActionController
         curl_close($ch);
         return $data;
     }
+
+    function get_web_page( $url, $cookiesIn = '' ){
+            $options = array(
+                CURLOPT_RETURNTRANSFER => true,     // return web page
+                CURLOPT_HEADER         => true,     //return headers in addition to content
+                CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+                CURLOPT_ENCODING       => "",       // handle all encodings
+                CURLOPT_AUTOREFERER    => true,     // set referer on redirect
+                CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
+                CURLOPT_TIMEOUT        => 120,      // timeout on response
+                CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+                CURLINFO_HEADER_OUT    => true,
+                CURLOPT_SSL_VERIFYPEER => false,     // Disabled SSL Cert checks
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_COOKIE         => $cookiesIn
+            );
+
+            $ch      = curl_init( $url );
+            curl_setopt_array( $ch, $options );
+            $rough_content = curl_exec( $ch );
+            $err     = curl_errno( $ch );
+            $errmsg  = curl_error( $ch );
+            $header  = curl_getinfo( $ch );
+            curl_close( $ch );
+
+            $header_content = substr($rough_content, 0, $header['header_size']);
+            $body_content = trim(str_replace($header_content, '', $rough_content));
+            $pattern = "#Set-Cookie:\\s+(?<cookie>[^=]+=[^;]+)#m"; 
+            preg_match_all($pattern, $header_content, $matches); 
+            $cookiesOut = implode("; ", $matches['cookie']);
+
+            //$header['errno']   = $err;
+            //$header['errmsg']  = $errmsg;
+            //$header['headers']  = $header_content;
+            //$header['content'] = $body_content;
+            $header['cookies'] = $cookiesOut;
+        return $header;
+    }    
 
 }
