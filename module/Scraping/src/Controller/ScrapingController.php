@@ -548,7 +548,7 @@ class ScrapingController extends AbstractActionController
             'timeout' => 2.0, 
             'allow_redirects' => true, 
             'debug' => false,
-            'cookies' => $cookies,
+            //'cookies' => $cookies,
             $tipo => $query
         ];
         $response = $client->request($method, $url, $options);
@@ -613,7 +613,7 @@ class ScrapingController extends AbstractActionController
             //$header['errno']   = $err;
             //$header['errmsg']  = $errmsg;
             //$header['headers']  = $header_content;
-            //$header['content'] = $body_content;
+            $header['content'] = $body_content;
             $header['cookies'] = $cookiesOut;
         return $header;
     }    
