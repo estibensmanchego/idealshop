@@ -420,7 +420,7 @@ class ScrapingController extends AbstractActionController
 
         $client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
         $options = [ 
-            'timeout' => 5.0, 
+            'timeout' => 9.0, 
             'allow_redirects' => true
         ];
         $response = $client->request('GET', 'http://www.tottus.com.pe/tottus/browse/Abarrotes-y-Despensa-Aceites-y-Vinagres-Aceite-de-Oliva/_/N-kptaaa?No=0&Nrpp=', $options);
