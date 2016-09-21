@@ -430,7 +430,6 @@ class ScrapingController extends AbstractActionController
 
         $data_productos = array();
 
-        $results_productos_img = $dom_productos->execute('form .modal-content img');
         $results_productos = $dom_productos->execute('form .item-product-caption .title h5 div');
         foreach ($results_productos as $k => $productos) {
             $data_productos[$k]['nombre'] = $productos->nodeValue;
@@ -450,32 +449,33 @@ class ScrapingController extends AbstractActionController
         $results_productos = $dom_productos->execute('form .item-product-caption .prices');
         foreach ($results_productos as $k => $productos) {
             $data_productos[$k]['precio'] = trim($productos->nodeValue);
-        }     
+        }
+        $results_productos_img = $dom_productos->execute('form .modal-content img');
         foreach ($results_productos_img as $k => $img) {
             $data_productos[$k]['imagen'] = str_replace("//", "", $img->getAttribute('src'));            
-            $nombre = $this->toAscii($data_productos[$k]['nombre']);
-            $type = $_SERVER["CONTENT_TYPE"];
-            $data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre);
-        }        
-
+            $nombre = $this->toAscii($data_productos[$k]['nombre']) . '-' . $this->toAscii($data_productos[$k]['marca']) . '-' . uniqid();
+            $data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
+        }
         var_dump($data_productos);
 
         return false; 
     }
 
-    public function getImage($src, $name, $type=NULL)
+    public function getImage($src, $name, $type=NULL, $portal='plazavea')
     {
-        //$name = basename($src);    
-        $img_parts = pathinfo($src);
-        $name = $name.'.'.$img_parts['extension'];
+        //$name = basename($src);
+        if ($portal==='tottus') {
+            $data = $this->get_data($src);
+            $file = $data['image'];
+            list($type,$ext) = explode('/', $data['type']);
+            $name = $name.'.'.$ext;
+        } else {
+            $img_parts = pathinfo($src);
+            $name = $name.'.'.$img_parts['extension'];            
+            $file = file_get_contents($src);
+        }
 
-        $options = array(
-          'http'=>array(
-            'user_agent'=>"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36\r\n"
-          )
-        );
-
-        $upload = file_put_contents(dirname(__DIR__) . "/../../../public/img/products/$name",file_get_contents($src, false, $options));
+        $upload = file_put_contents(dirname(__DIR__) . "/../../../public/img/products/$name",$file);
         if($upload) {
             return true;
         } else {
@@ -512,5 +512,18 @@ class ScrapingController extends AbstractActionController
         $clean = preg_replace("/[\/_|+ -]+/", $delimiter, $clean);
 
         return $clean;
-    }    
+    }  
+
+    function get_data($url) {
+        $ch = curl_init();
+        $timeout = 10;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        $data['image'] = curl_exec($ch);
+        $data['type'] = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        curl_close($ch);
+        return $data;
+    }
+
 }
