@@ -4,7 +4,7 @@ namespace Product\Model;
 use RuntimeException;
 use Zend\Db\TableGateway\TableGatewayInterface;
 
-class ProductCategoryTable
+class CategoryTable
 {
     private $tableGateway;
 
@@ -18,7 +18,7 @@ class ProductCategoryTable
         return $this->tableGateway->select();
     }
 
-    public function getProduct($id)
+    public function getCategory($id)
     {
         $id = (int) $id;
         $rowset = $this->tableGateway->select(['id_category' => $id]);
@@ -33,28 +33,28 @@ class ProductCategoryTable
         return $row;
     }
 
-    public function saveProduct(ProductCategory $ProductCategory)
+    public function saveCategory(Category $Category)
     {
         $data = [
-            'id_category' => $ProductCategory->id_category,
-            'id_cat_top'  => $ProductCategory->id_cat_top,
-            'name'  => $ProductCategory->name,
-            'description'  => $ProductCategory->description,
-            'image'  => $ProductCategory->image,
-            'orden'  => $ProductCategory->orden,
-            'status'  => $ProductCategory->status,
+            'id_category' => $Category->id_category,
+            'id_cat_top'  => $Category->id_cat_top,
+            'name'  => $Category->name,
+            'description'  => $Category->description,
+            'image'  => $Category->image,
+            'orden'  => $Category->orden,
+            'status'  => $Category->status,
         ];
 
-        $id = (int) $ProductCategory->id_category;
+        $id = (int) $Category->id_category;
 
         if ($id === 0) {
             $this->tableGateway->insert($data);
             return;
         }
 
-        if (! $this->getProductCategory($id)) {
+        if (! $this->getCategory($id)) {
             throw new RuntimeException(sprintf(
-                'Cannot update ProductCategory with identifier %d; does not exist',
+                'Cannot update Category with identifier %d; does not exist',
                 $id
             ));
         }
@@ -62,7 +62,7 @@ class ProductCategoryTable
         $this->tableGateway->update($data, ['id_category' => $id]);
     }
 
-    public function deleteProduct($id)
+    public function deleteCategory($id)
     {
         $this->tableGateway->delete(['id_category' => (int) $id]);
     }

@@ -11,7 +11,7 @@ use Zend\InputFilter\InputFilterAwareInterface;
 use Zend\InputFilter\InputFilterInterface;
 use Zend\Validator\StringLength;
 
-class Product
+class Category
 {
     public $id_category;
     public $id_cat_top;

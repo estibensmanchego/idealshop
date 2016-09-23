@@ -20,10 +20,13 @@
         "zendframework/zend-dom": "^2.6",      
         "zendframework/zend-form": "^2.9",
         "zendframework/zend-db": "^2.8",
-        "zendframework/zend-i18n": "^2.7"
+        "zendframework/zend-i18n": "^2.7",
+        "zendframework/zend-permissions-acl": "^2.6",
+        "zendframework/zend-authentication": "^2.5"
     },
     "autoload": {
         "psr-4": {
+            "Auth\\": "module/Auth/src/",
             "Application\\": "module/Application/src/",
             "GuzzleHttp\\": "/vendor/guzzlehttp/",            
             "Scraping\\": "module/Scraping/src/",

@@ -1,0 +1,89 @@
+<div class="container">
+    
+    <!-- BASIC INPUTS -->
+    <div class="block">                        
+        
+        <div class="app-heading app-heading-small">                                
+            <div class="title">
+                <h2>Editar categoría</h2>
+                <p>Actualice los campos para editar la categoría</p>
+            </div>                                
+        </div>
+              
+        <?php  
+            $form->setAttribute('action', $this->url('product', [
+                'action' => 'edit',
+                'id'     => $id,
+            ]));            
+			$form->prepare();
+			echo $this->form()->openTag($form);
+        ?>      
+            <div class="form-group">
+                <label class="col-md-2 control-label">Categoría</label>
+                <div class="col-md-10">                    
+                    <?php  
+                        $category = $form->get('id_category');
+                        $category->setAttribute('class', 'bs-select form-control');
+                        $category->setAttribute('data-live-search', 'true');
+                    ?>
+                    <?= $this->formElement($category) ?>
+                    <?= $this->formElementErrors()->render($category, ['class' => 'help-block']) ?>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Nombre</label>
+                <div class="col-md-10">
+                    <?php  
+						$name = $form->get('name');
+						$name->setAttribute('class', 'form-control');
+						$name->setAttribute('placeholder', 'Aceite de Oliva 1L');
+                    ?>
+                    <?= $this->formElement($name) ?>
+                    <?= $this->formElementErrors()->render($name, ['class' => 'help-block']) ?>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Descripción</label>
+                <div class="col-md-10">
+                    <?php  
+                        $description = $form->get('description');
+                        $description->setAttribute('class', 'form-control');
+                    ?>
+                    <?= $this->formElement($description) ?>
+                    <?= $this->formElementErrors()->render($description, ['class' => 'help-block']) ?>                    
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Banner</label>
+                <div class="fallback">
+                    <input name="file" type="file" multiple />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">Estado</label>
+                <div class="col-md-10"> 
+                    <label class="switch switch-cube">
+                        <?php  
+                            $status = $form->get('status');
+                            $status->setAttribute('class', 'form-control');
+                        ?>
+                        <?= $this->formElement($status) ?>
+                        <?= $this->formElementErrors()->render($status, ['class' => 'help-block']) ?>                        
+                    </label>                                    
+                </div>
+            </div> 
+			<?php
+			$submit = $form->get('submit');
+			$submit->setAttribute('class', 'btn btn-primary');
+			$submit->setAttribute('value', 'Agregar');								
+			echo $this->formSubmit($submit);
+			echo $this->formHidden($form->get('id_product'));
+			echo $this->form()->closeTag();
+			?>
+
+        </form>
+        
+    </div>
+    <!-- END BASIC INPUTS -->
+    
+</div>

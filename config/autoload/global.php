@@ -24,4 +24,7 @@ return [
 			'Zend\Db\Adapter\Adapter' => 'Zend\Db\Adapter\AdapterServiceFactory',
 		),
 	),
+	'module_layouts' => array(
+		'Auth' => 'layout/auth.phtml',
+   ),
 ];
