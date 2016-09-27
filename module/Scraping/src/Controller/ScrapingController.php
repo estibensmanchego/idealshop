@@ -16,13 +16,15 @@ use Zend\Dom\Query;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Sql\Select;
 
+use Product\Controller\Factory\ProductControllerFactory;
+
 use Zend\Session\Storage\ArrayStorage;
 use Zend\Session\SessionManager;
 
 setlocale(LC_ALL, 'en_US.UTF8');
 
 class ScrapingController extends AbstractActionController
-{
+{  
 
     public function indexAction()
     {
@@ -34,9 +36,12 @@ class ScrapingController extends AbstractActionController
     public function wongAction()
     {
 
-        //Testeando insert
+        //Testeando insert}
+        $product = new ProductControllerFactory();
+        var_dump($product);
+        exit;
         $products = $this->getServiceLocator()->get(Model\ProductTable::class)->select()->toArray();
-        
+
         $product = new Product();
         $product->id_brand = '1';
         $product->id_category = '1';

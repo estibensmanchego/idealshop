@@ -64,7 +64,6 @@ class Module implements ConfigProviderInterface
                         $container->get(Model\CategoryTable::class)
                     );
                 },
-                Controller\CategoryController::class => 'Product\Controller\Factory\ProductControllerFactory',
             ],
         ];
     }
