@@ -16,64 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `Pedido_Detalle`
---
-
-DROP TABLE IF EXISTS `Pedido_Detalle`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Pedido_Detalle` (
-  `id_pedido_detalle` int(11) NOT NULL AUTO_INCREMENT,
-  `Pedido_Detallecol` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id_pedido_detalle`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Pedido_Detalle`
---
-
-LOCK TABLES `Pedido_Detalle` WRITE;
-/*!40000 ALTER TABLE `Pedido_Detalle` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Pedido_Detalle` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `Registro_Delivery`
---
-
-DROP TABLE IF EXISTS `Registro_Delivery`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Registro_Delivery` (
-  `id_delivery` int(11) NOT NULL AUTO_INCREMENT,
-  `tipo_documento` varchar(45) DEFAULT NULL,
-  `nro_documento` varchar(45) DEFAULT NULL,
-  `direccion` varchar(120) DEFAULT NULL,
-  `correo` varchar(45) DEFAULT NULL,
-  `telefono` varchar(45) DEFAULT NULL,
-  `estado` varchar(45) DEFAULT NULL,
-  `nombre_contacto` varchar(45) DEFAULT NULL,
-  `ape_paterno` varchar(45) DEFAULT NULL,
-  `apr_materno` varchar(45) DEFAULT NULL,
-  `tipo_doc` varchar(45) DEFAULT NULL,
-  `nro_doc` varchar(45) DEFAULT NULL,
-  `correo_contacto` varchar(45) DEFAULT NULL,
-  `telefono_contacto` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id_delivery`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Registro_Delivery`
---
-
-LOCK TABLES `Registro_Delivery` WRITE;
-/*!40000 ALTER TABLE `Registro_Delivery` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Registro_Delivery` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `album`
 --
 
@@ -390,6 +332,61 @@ LOCK TABLES `pedido_detalle` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `plazavea_product`
+--
+
+DROP TABLE IF EXISTS `plazavea_product`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `plazavea_product` (
+  `id_product` int(11) NOT NULL,
+  `id_brand` int(11) NOT NULL,
+  `id_category` int(11) NOT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `description` text,
+  `stock` int(15) DEFAULT NULL,
+  `status` tinyint(1) DEFAULT NULL,
+  `outstanding` tinyint(1) DEFAULT NULL COMMENT 'Oferta'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `plazavea_product`
+--
+
+LOCK TABLES `plazavea_product` WRITE;
+/*!40000 ALTER TABLE `plazavea_product` DISABLE KEYS */;
+/*!40000 ALTER TABLE `plazavea_product` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `plazavea_product_category`
+--
+
+DROP TABLE IF EXISTS `plazavea_product_category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `plazavea_product_category` (
+  `id_category` int(11) NOT NULL,
+  `id_cat_top` int(11) NOT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `description` text COMMENT '	',
+  `image` varchar(200) DEFAULT NULL,
+  `orden` varchar(45) DEFAULT NULL COMMENT 'Orden de visualización',
+  `status` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `plazavea_product_category`
+--
+
+LOCK TABLES `plazavea_product_category` WRITE;
+/*!40000 ALTER TABLE `plazavea_product_category` DISABLE KEYS */;
+/*!40000 ALTER TABLE `plazavea_product_category` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `product`
 --
 
@@ -600,6 +597,41 @@ LOCK TABLES `provincia` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `registro_delivery`
+--
+
+DROP TABLE IF EXISTS `registro_delivery`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `registro_delivery` (
+  `id_delivery` int(11) NOT NULL AUTO_INCREMENT,
+  `tipo_documento` varchar(45) DEFAULT NULL,
+  `nro_documento` varchar(45) DEFAULT NULL,
+  `direccion` varchar(120) DEFAULT NULL,
+  `correo` varchar(45) DEFAULT NULL,
+  `telefono` varchar(45) DEFAULT NULL,
+  `estado` varchar(45) DEFAULT NULL,
+  `nombre_contacto` varchar(45) DEFAULT NULL,
+  `ape_paterno` varchar(45) DEFAULT NULL,
+  `apr_materno` varchar(45) DEFAULT NULL,
+  `tipo_doc` varchar(45) DEFAULT NULL,
+  `nro_doc` varchar(45) DEFAULT NULL,
+  `correo_contacto` varchar(45) DEFAULT NULL,
+  `telefono_contacto` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id_delivery`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `registro_delivery`
+--
+
+LOCK TABLES `registro_delivery` WRITE;
+/*!40000 ALTER TABLE `registro_delivery` DISABLE KEYS */;
+/*!40000 ALTER TABLE `registro_delivery` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `tienda`
 --
 
@@ -624,6 +656,61 @@ CREATE TABLE `tienda` (
 LOCK TABLES `tienda` WRITE;
 /*!40000 ALTER TABLE `tienda` DISABLE KEYS */;
 /*!40000 ALTER TABLE `tienda` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tottus_product`
+--
+
+DROP TABLE IF EXISTS `tottus_product`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tottus_product` (
+  `id_product` int(11) NOT NULL,
+  `id_brand` int(11) NOT NULL,
+  `id_category` int(11) NOT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `description` text,
+  `stock` int(15) DEFAULT NULL,
+  `status` tinyint(1) DEFAULT NULL,
+  `outstanding` tinyint(1) DEFAULT NULL COMMENT 'Oferta'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tottus_product`
+--
+
+LOCK TABLES `tottus_product` WRITE;
+/*!40000 ALTER TABLE `tottus_product` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tottus_product` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tottus_product_category`
+--
+
+DROP TABLE IF EXISTS `tottus_product_category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tottus_product_category` (
+  `id_category` int(11) NOT NULL,
+  `id_cat_top` int(11) NOT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `description` text COMMENT '	',
+  `image` varchar(200) DEFAULT NULL,
+  `orden` varchar(45) DEFAULT NULL COMMENT 'Orden de visualización',
+  `status` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tottus_product_category`
+--
+
+LOCK TABLES `tottus_product_category` WRITE;
+/*!40000 ALTER TABLE `tottus_product_category` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tottus_product_category` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -688,6 +775,61 @@ LOCK TABLES `usurio_perfil` WRITE;
 /*!40000 ALTER TABLE `usurio_perfil` DISABLE KEYS */;
 /*!40000 ALTER TABLE `usurio_perfil` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `wong_product`
+--
+
+DROP TABLE IF EXISTS `wong_product`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `wong_product` (
+  `id_product` int(11) NOT NULL,
+  `id_brand` int(11) NOT NULL,
+  `id_category` int(11) NOT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `description` text,
+  `stock` int(15) DEFAULT NULL,
+  `status` tinyint(1) DEFAULT NULL,
+  `outstanding` tinyint(1) DEFAULT NULL COMMENT 'Oferta'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `wong_product`
+--
+
+LOCK TABLES `wong_product` WRITE;
+/*!40000 ALTER TABLE `wong_product` DISABLE KEYS */;
+/*!40000 ALTER TABLE `wong_product` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `wong_product_category`
+--
+
+DROP TABLE IF EXISTS `wong_product_category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `wong_product_category` (
+  `id_category` int(11) NOT NULL,
+  `id_cat_top` int(11) NOT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `description` text COMMENT '	',
+  `image` varchar(200) DEFAULT NULL,
+  `orden` varchar(45) DEFAULT NULL COMMENT 'Orden de visualización',
+  `status` tinyint(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `wong_product_category`
+--
+
+LOCK TABLES `wong_product_category` WRITE;
+/*!40000 ALTER TABLE `wong_product_category` DISABLE KEYS */;
+/*!40000 ALTER TABLE `wong_product_category` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -698,4 +840,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-23 17:49:19
+-- Dump completed on 2016-09-27 17:18:07

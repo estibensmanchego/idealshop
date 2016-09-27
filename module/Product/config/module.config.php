@@ -43,11 +43,14 @@ return [
             ],
         ],
     ],
-    /*'controllers' => [
-        'invokables' => [
+    'controllers' => [
+        /*'invokables' => [
             'Product\Controller\Category' => 'Product\Controller\CategoryController'
-        ],
-    ], */
+        ],*/
+        'factories' => [
+             'Product\Controller\Factory' => 'Product\Controller\Factory\ProductControllerFactory'
+        ]
+    ],
     'view_manager' => [
         'template_path_stack' => [
             __DIR__ . '/../view',

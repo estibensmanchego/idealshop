@@ -1,10 +1,19 @@
-<?php
-$title = 'Scraping';
-$this->headTitle($title);
-?>
-<h1><?= $this->escapeHtml($title) ?></h1>
-<p>
-    <a class="btn btn-success pull-right" href="<?= $this->url('scraping', ['action' => 'plazavea']) ?>">Plaza Vea</a>
-    <a class="btn btn-success pull-right" href="<?= $this->url('scraping', ['action' => 'tottus']) ?>">Tottus</a>
-    <a class="btn btn-success pull-right" href="<?= $this->url('scraping', ['action' => 'wong']) ?>">Wong</a>
-</p>
+                    <div class="container">
+                        
+                        <div class="block block-condensed">                            
+                            <div class="app-heading app-heading-small">                                
+                                <div class="title">
+                                    <h5>Scraping</h5>
+                                    <p>Selecciona el portal que descea iniciar a scrapear.</p>
+                                </div>
+                            </div>                            
+                            
+                            <div class="block-content">
+								<a class="btn btn-danger" href="<?= $this->url('scraping', ['action' => 'plazavea']) ?>">Plaza Vea</a>
+								<a class="btn btn-success" href="<?= $this->url('scraping', ['action' => 'tottus']) ?>">Tottus</a>
+								<a class="btn btn-danger" href="<?= $this->url('scraping', ['action' => 'wong']) ?>">Wong</a>
+                            </div>
+                                                        
+                        </div>                                                
+                        
+                    </div>

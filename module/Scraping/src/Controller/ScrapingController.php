@@ -13,8 +13,11 @@ use Zend\View\Model\ViewModel;
 use GuzzleHttp\Client;
 use Zend\Dom\Query;
 
-use Product\Model\Product;
-use Product\Model\ProductTable;
+use Zend\Db\TableGateway\TableGateway;
+use Zend\Db\Sql\Select;
+
+use Zend\Session\Storage\ArrayStorage;
+use Zend\Session\SessionManager;
 
 setlocale(LC_ALL, 'en_US.UTF8');
 
@@ -30,9 +33,164 @@ class ScrapingController extends AbstractActionController
 
     public function wongAction()
     {
-        return [
-            'portal'    => 'Wong',
-        ];  
+
+        //Testeando insert
+        $products = $this->getServiceLocator()->get(Model\ProductTable::class)->select()->toArray();
+        
+        $product = new Product();
+        $product->id_brand = '1';
+        $product->id_category = '1';
+        $product->name = 'producto 10';
+        $product->description = 'Decripcion de producto 10';
+        $product->stock = '30';
+        $product->status = '1';
+        $product->outstanding = '0';
+        $gateway = new TableGatewayInterface();
+        $table = new ProductTable($gateway);
+        $table->saveProduct($product);
+        exit;
+        //Tiempo
+        $tiempo_inicio = microtime_float();
+        $url = 'https://www.wong.com.pe/FO/supermercados/index.go';
+        $query = ['search' => 1, 'caip' => 1];
+        $html = $this->getBody($url, $query);
+
+        $dom = new Query($html);
+
+        $results = $dom->execute('#div_categorias #navigation li ul li.subcategoria a');
+
+        $categorias = array();
+        $count = count($results);
+        foreach ($results as $result) {
+            $categorias[] = [$result->getAttribute('id'), $result->getAttribute('onclick')];
+        }     
+
+        //$cookies = $this->get_web_page($url);
+        //list($ckid, $ckval) = explode("=", $cookies['cookies']);
+        #opcional
+        $ckval = $_GET['cookie'];
+
+        foreach ($categorias as $categoria) {   
+            list($idcat, $idsubcat) = explode("_", $categoria[0]);
+            list($presucatid, $nombresubcat, $catid, $nombrecat) = explode(",", $categoria[1]);
+            #IMPORT PRODUCT
+            #generamos la url
+            $url = 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria='.$idcat.'&idSubCategoria='.$idsubcat.'&fecha='.date("d-m-Y H:m:s").'&nombreCategoria='.str_replace("'", "", trim($nombrecat)).'&nombreSubCategoria=' . str_replace("'", "", trim($nombresubcat));
+            $headers = [
+                    'Cookie' => 'JSESSIONID='.$ckval,
+                    'Host' => 'www.wong.com.pe',
+                    'Origin' => 'https://www.wong.com.pe',
+                    'Referer' => 'https://www.wong.com.pe/FO/supermercados/index.go?search=2&caip=1',
+                    'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+                    'X-Requested-With' => 'XMLHttpRequest',
+                ];
+            $client = new \GuzzleHttp\Client();
+            $res = $client->request('GET', $url, [
+                'timeout' => 1000, 
+                'allow_redirects' => true,
+                'headers' => $headers
+            ]);
+            $html = $res->getBody();
+
+            $dom_productos = new Query($html);
+
+            $data_productos = array();
+            $results_productos = $dom_productos->execute('.fila_producto');
+            foreach ($results_productos as $k => $productos) {
+                list($fila, $id_pro) = explode("_", $productos->getAttribute('id'));
+                $data_productos[$k]['id_pro'] = $id_pro;
+            }
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .tipo');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['tipo'] = $productos->nodeValue;
+            }
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .Marca');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['marca'] = $productos->nodeValue;
+            }  
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .descripcion');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['nombre'] =  trim($productos->nodeValue);
+            }
+            $results_productos = $dom_productos->execute('.fila_producto .precio');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['precio'] = trim($productos->nodeValue);
+            }
+            $results_productos_img = $dom_productos->execute('.fila_producto .body_border img');
+            foreach ($results_productos_img as $k => $img) {
+                $data_productos[$k]['imagen'] = "https://www.wong.com.pe".str_replace("chica", "grande", $img->getAttribute('src'));       
+                //$nombre = $this->toAscii($data_productos[$k]['nombre']) . '-' . $this->toAscii($data_productos[$k]['marca']) . '-' . $data_productos[$k]['id_pro'];
+                //$data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
+            }
+
+            var_dump($data_productos);
+
+            exit;
+        }
+
+
+        //fin tiempo
+        $tiempo_fin = microtime_float();
+        $tiempo = $tiempo_fin - $tiempo_inicio;
+        echo "Tiempo empleado: " . ($tiempo_fin - $tiempo_inicio);
+
+        //https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=3945&idSubCategoria=8251&fecha=26-09-2016 16:09:49&nombreCategoria=Encarte Cheese and Wine&nombreSubCategoria=Quesos
+
+            /*$url = 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=3945&idSubCategoria=8251&fecha=26-09-2016 16:09:49&nombreCategoria=Encarte Cheese and Wine&nombreSubCategoria=Quesos';
+            #get cookie
+            $data = $this->get_web_page($url);
+            $headers = [
+                    'Cookie' => 'JSESSIONID=0000TYZRUi7PUpN-MsMFh7zgJQ3:-1;',
+                    'Host' => 'www.wong.com.pe',
+                    'Origin' => 'https://www.wong.com.pe',
+                    'Referer' => 'https://www.wong.com.pe/FO/supermercados/index.go?search=2&caip=1',
+                    'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+                    'X-Requested-With' => 'XMLHttpRequest',
+                ];
+            var_dump($headers);
+            $client = new \GuzzleHttp\Client();
+            $res = $client->request('GET', $url, [
+                'timeout' => 10, 
+                'allow_redirects' => true,
+                'headers' => $headers
+            ]);
+            $html = $res->getBody();
+
+            $dom_productos = new Query($html);
+
+            $data_productos = array();
+            $results_productos = $dom_productos->execute('.fila_producto');
+            foreach ($results_productos as $k => $productos) {
+                list($fila, $id_pro) = explode("_", $productos->getAttribute('id'));
+                $data_productos[$k]['id_pro'] = $id_pro;
+            }
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .tipo');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['tipo'] = $productos->nodeValue;
+            }
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .Marca');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['marca'] = $productos->nodeValue;
+            }  
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .descripcion');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['nombre'] =  trim($productos->nodeValue);
+            }
+            $results_productos = $dom_productos->execute('.fila_producto .precio');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['precio'] = trim($productos->nodeValue);
+            }
+            $results_productos_img = $dom_productos->execute('.fila_producto .body_border img');
+            foreach ($results_productos_img as $k => $img) {
+                $data_productos[$k]['imagen'] = "https://www.wong.com.pe".str_replace("chica", "grande", $img->getAttribute('src'));            
+                $nombre = $this->toAscii($data_productos[$k]['nombre']) . '-' . $this->toAscii($data_productos[$k]['marca']) . '-' . $data_productos[$k]['id_pro'];
+                //$data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
+            }
+
+            var_dump($data_productos); */
+
+        exit;
+        return false;  
     }
 
     public function tottusAction()
@@ -364,11 +522,11 @@ class ScrapingController extends AbstractActionController
         #TESTTT
 
         $client = new \GuzzleHttp\Client();
-        $res = $client->request('GET', 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=1&idSubCategoria=8182&fecha=22-8-2016 15:32:10:456&nombreCategoria=Abarrotes&nombreSubCategoria=Aceites%20de%20Oliva', [
+        $res = $client->request('GET', 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=3945&idSubCategoria=8251&fecha=26-09-2016%2016:09:49&nombreCategoria=Encarte%20Cheese%20and%20Wine&nombreSubCategoria=Quesos', [
             'timeout' => 10.0, 
             'allow_redirects' => true,
             'headers' => [
-                'Cookie' => 'JSESSIONID=0000ABUYETLF8M_9hwFQLbYams7:-1;',
+                'Cookie' => 'JSESSIONID=0000TYZRUi7PUpN-MsMFh7zgJQ3:-1;',
                 'Host' => 'www.wong.com.pe',
                 'Origin' => 'https://www.wong.com.pe',
                 'Referer' => 'https://www.wong.com.pe/FO/supermercados/index.go?search=2&caip=1',
@@ -539,7 +697,7 @@ class ScrapingController extends AbstractActionController
         $tipo = ($method == 'GET') ? 'query' : 'form_params';
         $client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
         $options = [
-            'timeout' => 2.0, 
+            'timeout' => 10.0, 
             'allow_redirects' => true, 
             'debug' => false,
             //'cookies' => $cookies,
@@ -610,6 +768,12 @@ class ScrapingController extends AbstractActionController
         //$header['content'] = $body_content;
         $header['cookies'] = $cookiesOut;
         return $header;
+    }    
+
+    function microtime_float()
+    {
+        list($useg, $seg) = explode(" ", microtime());
+        return ((float)$useg + (float)$seg);
     }    
 
 }
