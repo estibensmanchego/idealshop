@@ -16,33 +16,68 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `categoria`
+-- Table structure for table `Registro_Delivery`
 --
 
-DROP TABLE IF EXISTS `categoria`;
+DROP TABLE IF EXISTS `Registro_Delivery`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `categoria` (
-  `id_categoria` int(11) NOT NULL AUTO_INCREMENT,
-  `id_cat_padre` int(11) NOT NULL,
-  `nombre` varchar(120) DEFAULT NULL,
-  `descripcion` text COMMENT '	',
-  `imagen` varchar(200) DEFAULT NULL,
-  `orden` varchar(45) DEFAULT NULL COMMENT 'Orden de visualización',
-  `estado` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`id_categoria`),
-  KEY `fk_Categoria_Categoria1_idx` (`id_cat_padre`),
-  CONSTRAINT `fk_Categoria_Categoria1` FOREIGN KEY (`id_cat_padre`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE TABLE `Registro_Delivery` (
+  `id_delivery` int(11) NOT NULL AUTO_INCREMENT,
+  `tipo_documento` varchar(45) DEFAULT NULL,
+  `nro_documento` varchar(45) DEFAULT NULL,
+  `direccion` varchar(120) DEFAULT NULL,
+  `correo` varchar(45) DEFAULT NULL,
+  `telefono` varchar(45) DEFAULT NULL,
+  `estado` varchar(45) DEFAULT NULL,
+  `nombre_contacto` varchar(45) DEFAULT NULL,
+  `ape_paterno` varchar(45) DEFAULT NULL,
+  `apr_materno` varchar(45) DEFAULT NULL,
+  `tipo_doc` varchar(45) DEFAULT NULL,
+  `nro_doc` varchar(45) DEFAULT NULL,
+  `correo_contacto` varchar(45) DEFAULT NULL,
+  `telefono_contacto` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id_delivery`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `categoria`
+-- Dumping data for table `Registro_Delivery`
 --
 
-LOCK TABLES `categoria` WRITE;
-/*!40000 ALTER TABLE `categoria` DISABLE KEYS */;
-/*!40000 ALTER TABLE `categoria` ENABLE KEYS */;
+LOCK TABLES `Registro_Delivery` WRITE;
+/*!40000 ALTER TABLE `Registro_Delivery` DISABLE KEYS */;
+/*!40000 ALTER TABLE `Registro_Delivery` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `album`
+--
+
+DROP TABLE IF EXISTS `album`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `album` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `artist` varchar(100) NOT NULL,
+  `title` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `album`
+--
+
+LOCK TABLES `album` WRITE;
+/*!40000 ALTER TABLE `album` DISABLE KEYS */;
+INSERT INTO `album` VALUES (1,'The  Military  Wives','In  My  Dreams 33');
+INSERT INTO `album` VALUES (2,'Adele','21');
+INSERT INTO `album` VALUES (3,'Bruce  Springsteen','Wrecking Ball (Deluxe)');
+INSERT INTO `album` VALUES (4,'Lana  Del  Rey','Born  To  Die');
+INSERT INTO `album` VALUES (5,'Gotye 3','Making  Mirrors');
+INSERT INTO `album` VALUES (6,'des','de gr');
+/*!40000 ALTER TABLE `album` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -177,7 +212,7 @@ CREATE TABLE `direcciones` (
   KEY `fk_Direcciones_Departamento1_idx` (`id_epartamento`),
   KEY `fk_Direcciones_Usuario1_idx` (`id_usuario`),
   CONSTRAINT `fk_Direcciones_Departamento1` FOREIGN KEY (`id_epartamento`) REFERENCES `departamento` (`id_epartamento`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Direcciones_Usuario1` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Direcciones_Usuario1` FOREIGN KEY (`id_usuario`) REFERENCES `user` (`id_usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -241,32 +276,6 @@ LOCK TABLES `fidelizacion` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `marca`
---
-
-DROP TABLE IF EXISTS `marca`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `marca` (
-  `id_marca` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(120) DEFAULT NULL,
-  `descripcion` text,
-  `orden` varchar(45) DEFAULT NULL COMMENT 'Orden de visualización',
-  `estado` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`id_marca`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `marca`
---
-
-LOCK TABLES `marca` WRITE;
-/*!40000 ALTER TABLE `marca` DISABLE KEYS */;
-/*!40000 ALTER TABLE `marca` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `operador_logistico`
 --
 
@@ -313,7 +322,7 @@ CREATE TABLE `pedido` (
   `fecha_entrega` datetime DEFAULT NULL,
   PRIMARY KEY (`id_pedido`),
   KEY `fk_Pedido_Usuario1_idx` (`id_usuario`),
-  CONSTRAINT `fk_Pedido_Usuario1` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Pedido_Usuario1` FOREIGN KEY (`id_usuario`) REFERENCES `user` (`id_usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -344,7 +353,7 @@ CREATE TABLE `pedido_detalle` (
   KEY `fk_Pedido_has_Producto_Producto1_idx` (`id_producto`),
   KEY `fk_Pedido_has_Producto_Pedido1_idx` (`id_pedido`),
   CONSTRAINT `fk_Pedido_has_Producto_Pedido1` FOREIGN KEY (`id_pedido`) REFERENCES `pedido` (`id_pedido`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Pedido_has_Producto_Producto1` FOREIGN KEY (`id_producto`) REFERENCES `producto` (`id_producto`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Pedido_has_Producto_Producto1` FOREIGN KEY (`id_producto`) REFERENCES `product` (`id_product`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -358,46 +367,49 @@ LOCK TABLES `pedido_detalle` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `producto`
+-- Table structure for table `product`
 --
 
-DROP TABLE IF EXISTS `producto`;
+DROP TABLE IF EXISTS `product`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `producto` (
-  `id_producto` int(11) NOT NULL AUTO_INCREMENT,
-  `id_marca` int(11) NOT NULL,
-  `id_categoria` int(11) NOT NULL,
-  `nombre` varchar(120) DEFAULT NULL,
-  `descripcion` text,
+CREATE TABLE `product` (
+  `id_product` int(11) NOT NULL AUTO_INCREMENT,
+  `id_brand` int(11) NOT NULL,
+  `id_category` int(11) NOT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `description` text,
   `stock` int(15) DEFAULT NULL,
-  `estado` tinyint(1) DEFAULT NULL,
-  `destacado` tinyint(1) DEFAULT NULL COMMENT 'Oferta',
-  PRIMARY KEY (`id_producto`),
-  KEY `fk_Producto_Marca_idx` (`id_marca`),
-  KEY `fk_Producto_Categoria1_idx` (`id_categoria`),
-  CONSTRAINT `fk_Producto_Categoria1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Producto_Marca` FOREIGN KEY (`id_marca`) REFERENCES `marca` (`id_marca`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `status` tinyint(1) DEFAULT NULL,
+  `outstanding` tinyint(1) DEFAULT NULL COMMENT 'Oferta',
+  PRIMARY KEY (`id_product`),
+  KEY `fk_Producto_Marca_idx` (`id_brand`),
+  KEY `fk_Producto_Categoria1_idx` (`id_category`),
+  KEY `id_categoria` (`id_category`),
+  CONSTRAINT `fk_Producto_Categoria1` FOREIGN KEY (`id_category`) REFERENCES `product_category` (`id_category`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Producto_Marca` FOREIGN KEY (`id_brand`) REFERENCES `product_brand` (`id_marca`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `producto`
+-- Dumping data for table `product`
 --
 
-LOCK TABLES `producto` WRITE;
-/*!40000 ALTER TABLE `producto` DISABLE KEYS */;
-/*!40000 ALTER TABLE `producto` ENABLE KEYS */;
+LOCK TABLES `product` WRITE;
+/*!40000 ALTER TABLE `product` DISABLE KEYS */;
+INSERT INTO `product` VALUES (6,1,2,'Categoria 1','Descripcion de categoria',25,1,1);
+INSERT INTO `product` VALUES (9,1,2,'Product 1','Descripcion 1',45,1,1);
+/*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `producto_atributo`
+-- Table structure for table `product_attribute`
 --
 
-DROP TABLE IF EXISTS `producto_atributo`;
+DROP TABLE IF EXISTS `product_attribute`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `producto_atributo` (
+CREATE TABLE `product_attribute` (
   `id_producto_atributo` int(11) NOT NULL AUTO_INCREMENT,
   `id_producto` int(11) NOT NULL,
   `tipo_atributo` varchar(45) DEFAULT NULL,
@@ -405,54 +417,112 @@ CREATE TABLE `producto_atributo` (
   `estado` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id_producto_atributo`),
   KEY `fk_Producto_Atributo_Producto1_idx` (`id_producto`),
-  CONSTRAINT `fk_Producto_Atributo_Producto1` FOREIGN KEY (`id_producto`) REFERENCES `producto` (`id_producto`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Producto_Atributo_Producto1` FOREIGN KEY (`id_producto`) REFERENCES `product` (`id_product`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `producto_atributo`
+-- Dumping data for table `product_attribute`
 --
 
-LOCK TABLES `producto_atributo` WRITE;
-/*!40000 ALTER TABLE `producto_atributo` DISABLE KEYS */;
-/*!40000 ALTER TABLE `producto_atributo` ENABLE KEYS */;
+LOCK TABLES `product_attribute` WRITE;
+/*!40000 ALTER TABLE `product_attribute` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_attribute` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `producto_imagen`
+-- Table structure for table `product_brand`
 --
 
-DROP TABLE IF EXISTS `producto_imagen`;
+DROP TABLE IF EXISTS `product_brand`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `producto_imagen` (
+CREATE TABLE `product_brand` (
+  `id_marca` int(11) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(120) DEFAULT NULL,
+  `descripcion` text,
+  `orden` varchar(45) DEFAULT NULL COMMENT 'Orden de visualización',
+  `estado` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id_marca`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_brand`
+--
+
+LOCK TABLES `product_brand` WRITE;
+/*!40000 ALTER TABLE `product_brand` DISABLE KEYS */;
+INSERT INTO `product_brand` VALUES (1,'Marca 1','Descripo','1',1);
+/*!40000 ALTER TABLE `product_brand` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_category`
+--
+
+DROP TABLE IF EXISTS `product_category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `product_category` (
+  `id_category` int(11) NOT NULL AUTO_INCREMENT,
+  `id_cat_top` int(11) NOT NULL,
+  `name` varchar(120) DEFAULT NULL,
+  `description` text COMMENT '	',
+  `image` varchar(200) DEFAULT NULL,
+  `orden` varchar(45) DEFAULT NULL COMMENT 'Orden de visualización',
+  `status` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id_category`),
+  KEY `fk_Categoria_Categoria1_idx` (`id_cat_top`),
+  CONSTRAINT `fk_Categoria_Categoria1` FOREIGN KEY (`id_cat_top`) REFERENCES `product_category` (`id_category`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_category`
+--
+
+LOCK TABLES `product_category` WRITE;
+/*!40000 ALTER TABLE `product_category` DISABLE KEYS */;
+INSERT INTO `product_category` VALUES (2,0,'Categoria 1','Descropcion categoria 1','categoria-1.jpg','1',1);
+/*!40000 ALTER TABLE `product_category` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_image`
+--
+
+DROP TABLE IF EXISTS `product_image`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `product_image` (
   `id_producto_imagen` int(11) NOT NULL AUTO_INCREMENT,
   `id_producto` int(11) NOT NULL,
   `imagen` varchar(120) DEFAULT NULL,
   `principal` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id_producto_imagen`),
   KEY `fk_Producto_Imagen_Producto1_idx` (`id_producto`),
-  CONSTRAINT `fk_Producto_Imagen_Producto1` FOREIGN KEY (`id_producto`) REFERENCES `producto` (`id_producto`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Producto_Imagen_Producto1` FOREIGN KEY (`id_producto`) REFERENCES `product` (`id_product`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `producto_imagen`
+-- Dumping data for table `product_image`
 --
 
-LOCK TABLES `producto_imagen` WRITE;
-/*!40000 ALTER TABLE `producto_imagen` DISABLE KEYS */;
-/*!40000 ALTER TABLE `producto_imagen` ENABLE KEYS */;
+LOCK TABLES `product_image` WRITE;
+/*!40000 ALTER TABLE `product_image` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_image` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `producto_precio`
+-- Table structure for table `product_price`
 --
 
-DROP TABLE IF EXISTS `producto_precio`;
+DROP TABLE IF EXISTS `product_price`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `producto_precio` (
+CREATE TABLE `product_price` (
   `id_producto_precio` int(11) NOT NULL AUTO_INCREMENT COMMENT '		',
   `id_producto` int(11) NOT NULL,
   `id_tienda` int(11) NOT NULL,
@@ -466,18 +536,18 @@ CREATE TABLE `producto_precio` (
   PRIMARY KEY (`id_producto_precio`),
   KEY `fk_Producto_Precio_Producto1_idx` (`id_producto`),
   KEY `fk_Producto_Precio_Tienda1_idx` (`id_tienda`),
-  CONSTRAINT `fk_Producto_Precio_Producto1` FOREIGN KEY (`id_producto`) REFERENCES `producto` (`id_producto`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Producto_Precio_Producto1` FOREIGN KEY (`id_producto`) REFERENCES `product` (`id_product`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_Producto_Precio_Tienda1` FOREIGN KEY (`id_tienda`) REFERENCES `tienda` (`id_tienda`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `producto_precio`
+-- Dumping data for table `product_price`
 --
 
-LOCK TABLES `producto_precio` WRITE;
-/*!40000 ALTER TABLE `producto_precio` DISABLE KEYS */;
-/*!40000 ALTER TABLE `producto_precio` ENABLE KEYS */;
+LOCK TABLES `product_price` WRITE;
+/*!40000 ALTER TABLE `product_price` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_price` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -504,41 +574,6 @@ CREATE TABLE `provincia` (
 LOCK TABLES `provincia` WRITE;
 /*!40000 ALTER TABLE `provincia` DISABLE KEYS */;
 /*!40000 ALTER TABLE `provincia` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registro_delivery`
---
-
-DROP TABLE IF EXISTS `registro_delivery`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `registro_delivery` (
-  `id_delivery` int(11) NOT NULL AUTO_INCREMENT,
-  `tipo_documento` varchar(45) DEFAULT NULL,
-  `nro_documento` varchar(45) DEFAULT NULL,
-  `direccion` varchar(120) DEFAULT NULL,
-  `correo` varchar(45) DEFAULT NULL,
-  `telefono` varchar(45) DEFAULT NULL,
-  `estado` varchar(45) DEFAULT NULL,
-  `nombre_contacto` varchar(45) DEFAULT NULL,
-  `ape_paterno` varchar(45) DEFAULT NULL,
-  `apr_materno` varchar(45) DEFAULT NULL,
-  `tipo_doc` varchar(45) DEFAULT NULL,
-  `nro_doc` varchar(45) DEFAULT NULL,
-  `correo_contacto` varchar(45) DEFAULT NULL,
-  `telefono_contacto` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id_delivery`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registro_delivery`
---
-
-LOCK TABLES `registro_delivery` WRITE;
-/*!40000 ALTER TABLE `registro_delivery` DISABLE KEYS */;
-/*!40000 ALTER TABLE `registro_delivery` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -569,13 +604,13 @@ LOCK TABLES `tienda` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `usuario`
+-- Table structure for table `user`
 --
 
-DROP TABLE IF EXISTS `usuario`;
+DROP TABLE IF EXISTS `user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `usuario` (
+CREATE TABLE `user` (
   `id_usuario` int(11) NOT NULL AUTO_INCREMENT,
   `nombres` varchar(120) DEFAULT NULL,
   `ape_paterno` varchar(120) DEFAULT NULL,
@@ -593,12 +628,12 @@ CREATE TABLE `usuario` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `usuario`
+-- Dumping data for table `user`
 --
 
-LOCK TABLES `usuario` WRITE;
-/*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
-/*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
+LOCK TABLES `user` WRITE;
+/*!40000 ALTER TABLE `user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -618,7 +653,7 @@ CREATE TABLE `usurio_perfil` (
   `newsletter` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id_usurio_perfil`),
   KEY `fk_Usurio_Perfil_Usuario1_idx` (`id_usuario`),
-  CONSTRAINT `fk_Usurio_Perfil_Usuario1` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Usurio_Perfil_Usuario1` FOREIGN KEY (`id_usuario`) REFERENCES `user` (`id_usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -640,4 +675,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-28 11:48:04
+-- Dump completed on 2016-09-28 13:05:13
