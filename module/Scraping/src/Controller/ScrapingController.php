@@ -13,13 +13,18 @@ use Zend\View\Model\ViewModel;
 use GuzzleHttp\Client;
 use Zend\Dom\Query;
 
-use Product\Model\Product;
-use Product\Model\ProductTable;
+use Zend\Db\TableGateway\TableGateway;
+use Zend\Db\Sql\Select;
+
+use Product\Controller\Factory\ProductControllerFactory;
+
+use Zend\Session\Storage\ArrayStorage;
+use Zend\Session\SessionManager;
 
 setlocale(LC_ALL, 'en_US.UTF8');
 
 class ScrapingController extends AbstractActionController
-{
+{  
 
     public function indexAction()
     {
@@ -30,9 +35,167 @@ class ScrapingController extends AbstractActionController
 
     public function wongAction()
     {
-        return [
-            'portal'    => 'Wong',
-        ];  
+
+        //Testeando insert}
+        $product = new ProductControllerFactory();
+        var_dump($product);
+        exit;
+        $products = $this->getServiceLocator()->get(Model\ProductTable::class)->select()->toArray();
+
+        $product = new Product();
+        $product->id_brand = '1';
+        $product->id_category = '1';
+        $product->name = 'producto 10';
+        $product->description = 'Decripcion de producto 10';
+        $product->stock = '30';
+        $product->status = '1';
+        $product->outstanding = '0';
+        $gateway = new TableGatewayInterface();
+        $table = new ProductTable($gateway);
+        $table->saveProduct($product);
+        exit;
+        //Tiempo
+        $tiempo_inicio = microtime_float();
+        $url = 'https://www.wong.com.pe/FO/supermercados/index.go';
+        $query = ['search' => 1, 'caip' => 1];
+        $html = $this->getBody($url, $query);
+
+        $dom = new Query($html);
+
+        $results = $dom->execute('#div_categorias #navigation li ul li.subcategoria a');
+
+        $categorias = array();
+        $count = count($results);
+        foreach ($results as $result) {
+            $categorias[] = [$result->getAttribute('id'), $result->getAttribute('onclick')];
+        }     
+
+        //$cookies = $this->get_web_page($url);
+        //list($ckid, $ckval) = explode("=", $cookies['cookies']);
+        #opcional
+        $ckval = $_GET['cookie'];
+
+        foreach ($categorias as $categoria) {   
+            list($idcat, $idsubcat) = explode("_", $categoria[0]);
+            list($presucatid, $nombresubcat, $catid, $nombrecat) = explode(",", $categoria[1]);
+            #IMPORT PRODUCT
+            #generamos la url
+            $url = 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria='.$idcat.'&idSubCategoria='.$idsubcat.'&fecha='.date("d-m-Y H:m:s").'&nombreCategoria='.str_replace("'", "", trim($nombrecat)).'&nombreSubCategoria=' . str_replace("'", "", trim($nombresubcat));
+            $headers = [
+                    'Cookie' => 'JSESSIONID='.$ckval,
+                    'Host' => 'www.wong.com.pe',
+                    'Origin' => 'https://www.wong.com.pe',
+                    'Referer' => 'https://www.wong.com.pe/FO/supermercados/index.go?search=2&caip=1',
+                    'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+                    'X-Requested-With' => 'XMLHttpRequest',
+                ];
+            $client = new \GuzzleHttp\Client();
+            $res = $client->request('GET', $url, [
+                'timeout' => 1000, 
+                'allow_redirects' => true,
+                'headers' => $headers
+            ]);
+            $html = $res->getBody();
+
+            $dom_productos = new Query($html);
+
+            $data_productos = array();
+            $results_productos = $dom_productos->execute('.fila_producto');
+            foreach ($results_productos as $k => $productos) {
+                list($fila, $id_pro) = explode("_", $productos->getAttribute('id'));
+                $data_productos[$k]['id_pro'] = $id_pro;
+            }
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .tipo');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['tipo'] = $productos->nodeValue;
+            }
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .Marca');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['marca'] = $productos->nodeValue;
+            }  
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .descripcion');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['nombre'] =  trim($productos->nodeValue);
+            }
+            $results_productos = $dom_productos->execute('.fila_producto .precio');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['precio'] = trim($productos->nodeValue);
+            }
+            $results_productos_img = $dom_productos->execute('.fila_producto .body_border img');
+            foreach ($results_productos_img as $k => $img) {
+                $data_productos[$k]['imagen'] = "https://www.wong.com.pe".str_replace("chica", "grande", $img->getAttribute('src'));       
+                //$nombre = $this->toAscii($data_productos[$k]['nombre']) . '-' . $this->toAscii($data_productos[$k]['marca']) . '-' . $data_productos[$k]['id_pro'];
+                //$data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
+            }
+
+            var_dump($data_productos);
+
+            exit;
+        }
+
+
+        //fin tiempo
+        $tiempo_fin = microtime_float();
+        $tiempo = $tiempo_fin - $tiempo_inicio;
+        echo "Tiempo empleado: " . ($tiempo_fin - $tiempo_inicio);
+
+        //https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=3945&idSubCategoria=8251&fecha=26-09-2016 16:09:49&nombreCategoria=Encarte Cheese and Wine&nombreSubCategoria=Quesos
+
+            /*$url = 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=3945&idSubCategoria=8251&fecha=26-09-2016 16:09:49&nombreCategoria=Encarte Cheese and Wine&nombreSubCategoria=Quesos';
+            #get cookie
+            $data = $this->get_web_page($url);
+            $headers = [
+                    'Cookie' => 'JSESSIONID=0000TYZRUi7PUpN-MsMFh7zgJQ3:-1;',
+                    'Host' => 'www.wong.com.pe',
+                    'Origin' => 'https://www.wong.com.pe',
+                    'Referer' => 'https://www.wong.com.pe/FO/supermercados/index.go?search=2&caip=1',
+                    'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+                    'X-Requested-With' => 'XMLHttpRequest',
+                ];
+            var_dump($headers);
+            $client = new \GuzzleHttp\Client();
+            $res = $client->request('GET', $url, [
+                'timeout' => 10, 
+                'allow_redirects' => true,
+                'headers' => $headers
+            ]);
+            $html = $res->getBody();
+
+            $dom_productos = new Query($html);
+
+            $data_productos = array();
+            $results_productos = $dom_productos->execute('.fila_producto');
+            foreach ($results_productos as $k => $productos) {
+                list($fila, $id_pro) = explode("_", $productos->getAttribute('id'));
+                $data_productos[$k]['id_pro'] = $id_pro;
+            }
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .tipo');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['tipo'] = $productos->nodeValue;
+            }
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .Marca');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['marca'] = $productos->nodeValue;
+            }  
+            $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .descripcion');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['nombre'] =  trim($productos->nodeValue);
+            }
+            $results_productos = $dom_productos->execute('.fila_producto .precio');
+            foreach ($results_productos as $k => $productos) {
+                $data_productos[$k]['precio'] = trim($productos->nodeValue);
+            }
+            $results_productos_img = $dom_productos->execute('.fila_producto .body_border img');
+            foreach ($results_productos_img as $k => $img) {
+                $data_productos[$k]['imagen'] = "https://www.wong.com.pe".str_replace("chica", "grande", $img->getAttribute('src'));            
+                $nombre = $this->toAscii($data_productos[$k]['nombre']) . '-' . $this->toAscii($data_productos[$k]['marca']) . '-' . $data_productos[$k]['id_pro'];
+                //$data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
+            }
+
+            var_dump($data_productos); */
+
+        exit;
+        return false;  
     }
 
     public function tottusAction()
@@ -109,8 +272,6 @@ class ScrapingController extends AbstractActionController
         $promise = $client->sendAsync($request)->then(function ($response) {
             $html = $response->getBody();
 
-            var_dump($html);exit;
-
             $dom = new Query($html);
             //$results = $dom->execute('#div_categorias #navigation li a.head');
             $results = $dom->execute('#tabla_productos .fila_producto a.ficha_pro');
@@ -123,11 +284,9 @@ class ScrapingController extends AbstractActionController
 
         });
 
-        $promise->wait(); 
+        $promise->wait(); */
 
         //return new ViewModel();
-
-
 
         ##Plazavea
 
@@ -257,6 +416,7 @@ class ScrapingController extends AbstractActionController
         $html = $this->getBody($url, $query);
 
         $dom = new Query($html);
+
         $results = $dom->execute('#div_categorias #navigation li ul li.subcategoria a');
 
         $categorias = array();
@@ -264,7 +424,9 @@ class ScrapingController extends AbstractActionController
         foreach ($results as $result) {
             $categorias[] = [$result->getAttribute('id'), $result->getAttribute('onclick')];
         }
-        //var_dump($categorias);
+        //var_dump($categorias);  
+
+        $cookies = $this->get_web_page($url);
 
         #parametros de envio para traer productos
         #idCategoria:7048
@@ -286,7 +448,7 @@ class ScrapingController extends AbstractActionController
             . "&nombreCategoria=" . str_replace("'", "", trim($nombrecat))  
             . "&nombreSubCategoria=" . str_replace("'", "", trim($nombresubcat)) . "<br>"; */
 
-        /*  $url = 'https://www.wong.com.pe/FO/supermercados/productos.go';
+        /*    $url = 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=1&idSubCategoria=8182&fecha=21-8-2016%2016:18:17:449&nombreCategoria=Abarrotes&nombreSubCategoria=Aceites%20de%20Oliva';
             $query = [
                 'idCategoria' => $idcat, 
                 'idSubCategoria' => $idsubcat,
@@ -294,12 +456,13 @@ class ScrapingController extends AbstractActionController
                 'nombreCategoria' => str_replace("'", "", trim($nombrecat)),
                 'nombreSubCategoria' => str_replace("'", "", trim($nombresubcat))
             ];
-            $html = $this->getBody($url, $query, 'GET');
+            $html = $this->getBody($url, $query, 'GET', $cookies);
             
             $dom = new Query($html);
             var_dump($dom);
             exit;
-        } */
+        } */    
+
 
         #Plazavea
 
@@ -360,6 +523,53 @@ class ScrapingController extends AbstractActionController
 
         $promise->wait(); */
 
+        #GET PRODUCTOS DE WONG - Funciona
+        #TESTTT
+
+        $client = new \GuzzleHttp\Client();
+        $res = $client->request('GET', 'https://www.wong.com.pe/FO/supermercados/productos.go?idCategoria=3945&idSubCategoria=8251&fecha=26-09-2016%2016:09:49&nombreCategoria=Encarte%20Cheese%20and%20Wine&nombreSubCategoria=Quesos', [
+            'timeout' => 10.0, 
+            'allow_redirects' => true,
+            'headers' => [
+                'Cookie' => 'JSESSIONID=0000TYZRUi7PUpN-MsMFh7zgJQ3:-1;',
+                'Host' => 'www.wong.com.pe',
+                'Origin' => 'https://www.wong.com.pe',
+                'Referer' => 'https://www.wong.com.pe/FO/supermercados/index.go?search=2&caip=1',
+                'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ]
+        ]);
+        $html = $res->getBody();
+
+        $dom_productos = new Query($html);
+
+        $data_productos = array();
+
+        $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .tipo');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['tipo'] = $productos->nodeValue;
+        }
+        $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .Marca');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['marca'] = $productos->nodeValue;
+        }  
+        $results_productos = $dom_productos->execute('.fila_producto #ficha_pro .descripcion');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['nombre'] =  trim($productos->nodeValue);
+        }
+        $results_productos = $dom_productos->execute('.fila_producto .precio');
+        foreach ($results_productos as $k => $productos) {
+            $data_productos[$k]['precio'] = trim($productos->nodeValue);
+        }
+        $results_productos_img = $dom_productos->execute('.fila_producto .body_border img');
+        foreach ($results_productos_img as $k => $img) {
+            $data_productos[$k]['imagen'] = "https://www.wong.com.pe".str_replace("chica", "grande", $img->getAttribute('src'));            
+            $nombre = $this->toAscii($data_productos[$k]['nombre']) . '-' . $this->toAscii($data_productos[$k]['marca']) . '-' . uniqid();
+            $data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
+        }
+
+        var_dump($data_productos);
+
 
         #GET PRODUCTOS DE PLAZAVEA - Funciona
 
@@ -418,9 +628,9 @@ class ScrapingController extends AbstractActionController
 
         #GET PRODUCTOS DE TOTTUS - Funciona
 
-        $client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
+        /*$client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
         $options = [ 
-            'timeout' => 5.0, 
+            'timeout' => 9.0, 
             'allow_redirects' => true
         ];
         $response = $client->request('GET', 'http://www.tottus.com.pe/tottus/browse/Abarrotes-y-Despensa-Aceites-y-Vinagres-Aceite-de-Oliva/_/N-kptaaa?No=0&Nrpp=', $options);
@@ -430,7 +640,6 @@ class ScrapingController extends AbstractActionController
 
         $data_productos = array();
 
-        $results_productos_img = $dom_productos->execute('form .modal-content img');
         $results_productos = $dom_productos->execute('form .item-product-caption .title h5 div');
         foreach ($results_productos as $k => $productos) {
             $data_productos[$k]['nombre'] = $productos->nodeValue;
@@ -450,32 +659,33 @@ class ScrapingController extends AbstractActionController
         $results_productos = $dom_productos->execute('form .item-product-caption .prices');
         foreach ($results_productos as $k => $productos) {
             $data_productos[$k]['precio'] = trim($productos->nodeValue);
-        }     
+        }
+        $results_productos_img = $dom_productos->execute('form .modal-content img');
         foreach ($results_productos_img as $k => $img) {
             $data_productos[$k]['imagen'] = str_replace("//", "", $img->getAttribute('src'));            
-            $nombre = $this->toAscii($data_productos[$k]['nombre']);
-            $type = $_SERVER["CONTENT_TYPE"];
-            $data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre);
-        }        
-
-        var_dump($data_productos);
+            $nombre = $this->toAscii($data_productos[$k]['nombre']) . '-' . $this->toAscii($data_productos[$k]['marca']) . '-' . uniqid();
+            $data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
+        }
+        var_dump($data_productos); */
 
         return false; 
     }
 
-    public function getImage($src, $name, $type=NULL)
+    public function getImage($src, $name, $type=NULL, $portal='plazavea')
     {
-        //$name = basename($src);    
-        $img_parts = pathinfo($src);
-        $name = $name.'.'.$img_parts['extension'];
+        //$name = basename($src);
+        if ($portal==='tottus') {
+            $data = $this->get_data($src);
+            $file = $data['image'];
+            list($type,$ext) = explode('/', $data['type']);
+            $name = $name.'.'.$ext;
+        } else {
+            $img_parts = pathinfo($src);
+            $name = $name.'.'.$img_parts['extension'];            
+            $file = file_get_contents($src);
+        }
 
-        $options = array(
-          'http'=>array(
-            'user_agent'=>"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36\r\n"
-          )
-        );
-
-        $upload = file_put_contents(dirname(__DIR__) . "/../../../public/img/products/$name",file_get_contents($src, false, $options));
+        $upload = file_put_contents(dirname(__DIR__) . "/../../../public/img/products/$name",$file);
         if($upload) {
             return true;
         } else {
@@ -487,14 +697,15 @@ class ScrapingController extends AbstractActionController
     @params: $url string url
     @param: $query array ['foo' => 'bar']
     */
-    public function getBody($url, $query='', $method = 'GET')
+    public function getBody($url, $query='', $method = 'GET', $cookies=NULL)
     {
         $tipo = ($method == 'GET') ? 'query' : 'form_params';
         $client = new \GuzzleHttp\Client(['cookies' => true, 'headers' => ['User-Agent' => "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0"]]);
         $options = [
-            'timeout' => 2.0, 
+            'timeout' => 10.0, 
             'allow_redirects' => true, 
             'debug' => false,
+            //'cookies' => $cookies,
             $tipo => $query
         ];
         $response = $client->request($method, $url, $options);
@@ -512,5 +723,62 @@ class ScrapingController extends AbstractActionController
         $clean = preg_replace("/[\/_|+ -]+/", $delimiter, $clean);
 
         return $clean;
+    }  
+
+    function get_data($url) {
+        $ch = curl_init();
+        $timeout = 10;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        $data['image'] = curl_exec($ch);
+        $data['type'] = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        curl_close($ch);
+        return $data;
+    }
+
+    function get_web_page( $url, $cookiesIn = '' ){
+        $options = array(
+            CURLOPT_RETURNTRANSFER => true,     // return web page
+            CURLOPT_HEADER         => true,     //return headers in addition to content
+            CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+            CURLOPT_ENCODING       => "",       // handle all encodings
+            CURLOPT_AUTOREFERER    => true,     // set referer on redirect
+            CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
+            CURLOPT_TIMEOUT        => 120,      // timeout on response
+            CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+            CURLINFO_HEADER_OUT    => true,
+            CURLOPT_SSL_VERIFYPEER => false,     // Disabled SSL Cert checks
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_COOKIE         => $cookiesIn
+        );
+
+        $ch      = curl_init( $url );
+        curl_setopt_array( $ch, $options );
+        $rough_content = curl_exec( $ch );
+        $err     = curl_errno( $ch );
+        $errmsg  = curl_error( $ch );
+        $header  = curl_getinfo( $ch );
+        curl_close( $ch );
+
+        $header_content = substr($rough_content, 0, $header['header_size']);
+        $body_content = trim(str_replace($header_content, '', $rough_content));
+        $pattern = "#Set-Cookie:\\s+(?<cookie>[^=]+=[^;]+)#m"; 
+        preg_match_all($pattern, $header_content, $matches); 
+        $cookiesOut = implode("; ", $matches['cookie']);
+
+        //$header['errno']   = $err;
+        //$header['errmsg']  = $errmsg;
+        //$header['headers']  = $header_content;
+        //$header['content'] = $body_content;
+        $header['cookies'] = $cookiesOut;
+        return $header;
     }    
+
+    function microtime_float()
+    {
+        list($useg, $seg) = explode(" ", microtime());
+        return ((float)$useg + (float)$seg);
+    }    
+
 }
