@@ -13,18 +13,24 @@ use Zend\View\Model\ViewModel;
 use GuzzleHttp\Client;
 use Zend\Dom\Query;
 
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\Sql\Select;
-
-use Product\Controller\Factory\ProductControllerFactory;
+use Scraping\Model\ScrapingTable;
+use Scraping\Model\Scraping;
 
 use Zend\Session\Storage\ArrayStorage;
 use Zend\Session\SessionManager;
+
+use Zend\ServiceManager\ServiceManager;
 
 setlocale(LC_ALL, 'en_US.UTF8');
 
 class ScrapingController extends AbstractActionController
 {  
+    private $table;
+
+    public function __construct(ScrapingTable $table)
+    {
+        $this->table = $table;
+    }
 
     public function indexAction()
     {
@@ -36,26 +42,10 @@ class ScrapingController extends AbstractActionController
     public function wongAction()
     {
 
-        //Testeando insert}
-        $product = new ProductControllerFactory();
-        var_dump($product);
-        exit;
-        $products = $this->getServiceLocator()->get(Model\ProductTable::class)->select()->toArray();
-
-        $product = new Product();
-        $product->id_brand = '1';
-        $product->id_category = '1';
-        $product->name = 'producto 10';
-        $product->description = 'Decripcion de producto 10';
-        $product->stock = '30';
-        $product->status = '1';
-        $product->outstanding = '0';
-        $gateway = new TableGatewayInterface();
-        $table = new ProductTable($gateway);
-        $table->saveProduct($product);
-        exit;
+        //Inicilizamos ProductTable
+        $product = new Scraping();
         //Tiempo
-        $tiempo_inicio = microtime_float();
+        $tiempo_inicio = $this->microtime_float();
         $url = 'https://www.wong.com.pe/FO/supermercados/index.go';
         $query = ['search' => 1, 'caip' => 1];
         $html = $this->getBody($url, $query);
@@ -128,14 +118,24 @@ class ScrapingController extends AbstractActionController
                 //$data_productos[$k]['estado_img'] = $this->getImage($data_productos[$k]['imagen'], $nombre, NULL, 'tottus');
             }
 
-            var_dump($data_productos);
+            var_dump($data_productos);exit;
+
+            foreach ($data_productos as $key => $pro) {
+                $product->id_brand = 1;
+                $product->id_category = 2;
+                $product->name = 'producto 10';
+                $product->description = 'Decripcion de producto 10';
+                $product->stock = '30';
+                $product->status = '1';
+                $product->outstanding = '0';
+                $this->table->saveScraping($product);
+            }
 
             exit;
         }
-
-
+        
         //fin tiempo
-        $tiempo_fin = microtime_float();
+        $tiempo_fin = $this->microtime_float();
         $tiempo = $tiempo_fin - $tiempo_inicio;
         echo "Tiempo empleado: " . ($tiempo_fin - $tiempo_inicio);
 

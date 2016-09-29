@@ -22,6 +22,24 @@ class Module implements ConfigProviderInterface
         return include __DIR__ . '/../config/module.config.php';
     }
 
+    public function getServiceConfig()
+    {
+        return [
+            'factories' => [
+                Model\ScrapingTable::class => function($container) {
+                    $tableGateway = $container->get(Model\ScrapingTableGateway::class);
+                    return new Model\ScrapingTable($tableGateway);
+                },
+                Model\ScrapingTableGateway::class => function ($container) {
+                    $dbAdapter = $container->get(AdapterInterface::class);
+                    $resultSetPrototype = new ResultSet();
+                    $resultSetPrototype->setArrayObjectPrototype(new Model\Scraping());
+                    return new TableGateway('product', $dbAdapter, null, $resultSetPrototype);
+                }
+            ]
+        ];
+    }
+
     public function getControllerConfig()
     {
         return [

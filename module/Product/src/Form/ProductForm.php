@@ -74,7 +74,6 @@ class ProductForm extends Form
         $this->add([
             'name' => 'outstanding',
             'type' => 'checkbox',
-            'required' => false,
             'options' => [
                 'use_hidden_element' => false,
                 'checsked_value' => '1',

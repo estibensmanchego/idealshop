@@ -46,7 +46,7 @@ class Module implements ConfigProviderInterface
                     $resultSetPrototype->setArrayObjectPrototype(new Model\Category());
                     return new TableGateway('product_category', $dbAdapter, null, $resultSetPrototype);
                 },
-            ],
+            ]
         ];
     }
 

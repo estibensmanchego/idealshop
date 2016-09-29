@@ -388,7 +388,7 @@ CREATE TABLE `product` (
   KEY `id_categoria` (`id_category`),
   CONSTRAINT `fk_Producto_Categoria1` FOREIGN KEY (`id_category`) REFERENCES `product_category` (`id_category`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_Producto_Marca` FOREIGN KEY (`id_brand`) REFERENCES `product_brand` (`id_marca`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -399,6 +399,9 @@ LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
 INSERT INTO `product` VALUES (6,1,2,'Categoria 1','Descripcion de categoria',25,1,1);
 INSERT INTO `product` VALUES (9,1,2,'Product 1','Descripcion 1',45,1,1);
+INSERT INTO `product` VALUES (11,1,2,'Product 4','Descripcion de prducto 4',35,1,1);
+INSERT INTO `product` VALUES (12,1,2,'producto 10','Decripcion de producto 10',30,1,0);
+INSERT INTO `product` VALUES (13,1,2,'producto 10','Decripcion de producto 10',30,1,0);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -675,4 +678,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-28 13:46:44
+-- Dump completed on 2016-09-28 22:02:04

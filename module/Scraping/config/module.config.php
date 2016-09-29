@@ -29,11 +29,6 @@ return [
             ],
         ],
     ],
-    'service_manager' => [
-        'invokables' => [
-            'Product\Controller\Factory\ProductControllerFactory' => 'Product\Controller\Factory\ProductControllerFactory'
-        ]
-    ],
     'view_manager' => [
         'template_path_stack' => [
             __DIR__ . '/../view',

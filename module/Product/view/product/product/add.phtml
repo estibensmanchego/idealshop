@@ -101,12 +101,7 @@
                         <?= $this->formElementErrors()->render($outstanding, ['class' => 'help-block']) ?>                        
                     </label>                                    
                 </div> 
-			</div>
-            <div class="form-group">
-                <div class="fallback">
-                    <input name="file" type="file" multiple />
-                </div>
-            </div>           
+			</div>         
 			<?php
 			$submit = $form->get('submit');
 			$submit->setAttribute('class', 'btn btn-primary');
